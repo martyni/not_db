@@ -2,6 +2,7 @@ import json
 import boto3
 import os
 import requests
+import StringIO
 from botocore.exceptions import ClientError
 from threading import Thread
 from time import sleep
@@ -13,7 +14,6 @@ def pather(*args):
     return "/".join([arg for arg in args])
 
 def init(path, name):
-    print path
     if name == "favicon.ico":
         return None
     policy ={
@@ -56,11 +56,10 @@ def init(path, name):
         
 
 def write(key, value, path, name):
-    with open(pather(path, key), 'w') as page:
-        page.write(json.dumps(value))
-    print key, path, name, key, {'ContentType': 'application/json'}
-    client.upload_file(key, name, key, ExtraArgs={'ContentType': 'application/json'})
-    os.remove(key)    
+    page = StringIO.StringIO()
+    page.write(json.dumps(value))
+    page.seek(0)
+    client.upload_fileobj(page, name, key, ExtraArgs={'ContentType': 'application/json'})
         
 def _write(*args):
     t = Thread(target=thread_write, args=args)
@@ -72,7 +71,6 @@ def read(key, path, name):
             name,
             key
             )
-
     return requests.get(s3_path).json()
     
 

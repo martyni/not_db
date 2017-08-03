@@ -47,7 +47,6 @@ class List(Book):
 
     def put(self, list_name, db):
         l = self.get_list(list_name, db)
-        print l
         if not l[0]:
             self.Book.set(list_name, [request.form['data']])
         else:

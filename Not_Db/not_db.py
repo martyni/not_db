@@ -13,7 +13,7 @@ class not_db(object):
               "s3": s3
               }[driver]
         self.error = self.driver.init(self.path, self.name)
-        self.cache = self.get_contents('.cache') or {}
+        self.cache = {} #self.get_contents('.cache') or {}
 
     def set(self, key, value):
         self.driver.write(key, value, self.path, self.name)
@@ -25,10 +25,10 @@ class not_db(object):
     def get_contents(self, key, cached=True):
         def get_from_disk():
             try:
-               self.cache[key] = self.driver.read(key, self.path, self.name)
-               return self.cache[key]
+                self.cache[key] = self.driver.read(key, self.path, self.name)
+                return self.cache[key]
             except:
-               return None
+                return None
         if not cached:
            return get_from_disk()
         try:
