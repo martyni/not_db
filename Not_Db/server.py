@@ -5,7 +5,7 @@ import json
 app = Flask(__name__)
 @app.route('/')
 def healthcheck():
-    return 'ok'
+    return 'OMG'
 api = Api(app)
 
 
