@@ -3,7 +3,7 @@ import s3
 import json
 
 class not_db(object):
-    def __init__(self, name, path='.', driver="fs", counter_dump=100):
+    def __init__(self, name, path='.', driver="fs", counter_dump=1):
         self.name = name
         self.path = path
         self.write_counter = 0
@@ -13,7 +13,7 @@ class not_db(object):
               "s3": s3
               }[driver]
         self.error = self.driver.init(self.path, self.name)
-        self.cache = self.get('.cache') or {}
+        self.cache = self.get_contents('.cache') or {}
 
     def set(self, key, value):
         self.driver.write(key, value, self.path, self.name)
@@ -22,13 +22,13 @@ class not_db(object):
         if not self.write_counter % self.counter_dump:
            self.driver.write('.cache', self.cache, self.path, self.name)
     
-    def get(self, key, cached=True):
+    def get_contents(self, key, cached=True):
         def get_from_disk():
             try:
-                self.cache[key] = self.driver.read(key, self.path, self.name)
-                return self.cache[key]
+               self.cache[key] = self.driver.read(key, self.path, self.name)
+               return self.cache[key]
             except:
-                return None
+               return None
         if not cached:
            return get_from_disk()
         try:

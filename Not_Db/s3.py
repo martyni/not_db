@@ -8,12 +8,12 @@ from time import sleep
 
 client = boto3.client('s3')
 resource = boto3.resource('s3')
-region='eu-west-1'
-
+region = 'eu-west-1'
 def pather(*args):
     return "/".join([arg for arg in args])
 
 def init(path, name):
+    print path
     if name == "favicon.ico":
         return None
     policy ={
@@ -33,7 +33,7 @@ def init(path, name):
                 ACL='public-read',
                 Bucket=name,
                 CreateBucketConfiguration={
-                    'LocationConstraint': region
+                    'LocationConstraint': region 
                 }
                 )
         client.put_bucket_policy(
@@ -58,6 +58,7 @@ def init(path, name):
 def write(key, value, path, name):
     with open(pather(path, key), 'w') as page:
         page.write(json.dumps(value))
+    print key, path, name, key, {'ContentType': 'application/json'}
     client.upload_file(key, name, key, ExtraArgs={'ContentType': 'application/json'})
     os.remove(key)    
         
@@ -71,6 +72,7 @@ def read(key, path, name):
             name,
             key
             )
+
     return requests.get(s3_path).json()
     
 
