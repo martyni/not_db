@@ -1,3 +1,3 @@
 source env/bin/activate
-boop &
+not_db &
 sleep 1
