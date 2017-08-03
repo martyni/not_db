@@ -2,6 +2,7 @@
   "dev": {
           "s3_bucket" : "martyni-lambda",
           "app_function" : "my_app.app",
+	  "debug": true,
           "parameter_depth": 1
    },
   "stge": {

@@ -112,7 +112,7 @@ api.add_resource(List, '/<string:db>/list/<string:list_name>')
 api.add_resource(Book, '/<string:db>')
 
 def main():
-   app.run(host="0.0.0.0")
+   app.run(host="0.0.0.0", debug=True)
 
 if __name__ == '__main__':
    app.run(host="0.0.0.0", debug=True)
