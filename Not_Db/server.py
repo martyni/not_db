@@ -42,7 +42,7 @@ class List(Book):
         l = self.Book.get_contents(list_name)
         return l if l else self.not_found(l)
 
-    def get_contents(self, list_name, db):
+    def get(self, list_name, db):
         return self.get_list(list_name, db)
 
     def put(self, list_name, db):
