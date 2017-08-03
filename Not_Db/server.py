@@ -3,6 +3,9 @@ from flask import Flask, request
 from not_db import not_db
 import json
 app = Flask(__name__)
+@app.route('/')
+def healthcheck():
+    return 'ok'
 api = Api(app)
 
 
