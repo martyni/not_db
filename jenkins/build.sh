@@ -1,4 +1,5 @@
 virtualenv env
 source env/bin/activate
-pip install -r requirements.txt
+for req in $(cat requirements.txt) 
+   do pip install $req --upgrade
 pip install . --upgrade
