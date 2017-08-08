@@ -1,7 +1,7 @@
 url=$1
 failed=0
 python jenkins/test.py $url || failed=1
-if [ "$(curl $url)" == "OMG" ]
+if [ "$(curl $url | grep OMG)" ]
   then  
      echo success
   else
