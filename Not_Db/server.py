@@ -1,5 +1,5 @@
 from flask_restful import Resource, Api
-from flask import Flask, request
+from flask import Flask, request, render_template
 from not_db import not_db
 import json
 app = Flask(__name__)
@@ -7,12 +7,19 @@ api = Api(app)
 
 @app.route('/')
 def healthcheck():
-    return 'OMG'
+    return render_template("base.html")
 
 class Base(Resource):
+
     Book = None 
     def not_found(self, thing):
         return None, 404 
+
+    def parse_request(self, request):
+        if request.json:
+           return request.json
+        else:
+           return request.form.get('data')
 
 class Book(Base):
     def get(self, db):
@@ -48,9 +55,9 @@ class List(Book):
     def put(self, list_name, db):
         l = self.get_list(list_name, db)
         if not l[0]:
-            self.Book.set(list_name, [request.form['data']])
+            self.Book.set(list_name, [self.parse_request(request)])
         else:
-            self.Book.set(list_name, l + [request.form['data']])
+            self.Book.set(list_name, l + [self.parse_request(request)])
         return self.Book.get_contents(list_name)
 
     def post(self, *args, **kwargs):
@@ -85,7 +92,7 @@ class Item(List):
         list_, index_exist = self.index_fail(index, list_name, db)
         if not index_exist:
             return self.not_found(list_) 
-        list_.insert(index, request.form['data'])
+        list_.insert(index, self.parse_request(request))
         self.Book.set(list_name, list_)
         return self.Book.get_contents(list_name)
 
@@ -93,7 +100,7 @@ class Item(List):
         list_, index_exist = self.index_fail(index, list_name, db)
         if not index_exist:
             return self.not_found(list_) 
-        list_[index] = request.form['data']
+        list_[index] = self.parse_request(request)
         self.Book.set(list_name, list_)
         return self.Book.get_contents(list_name)
 

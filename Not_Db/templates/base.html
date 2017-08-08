@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<script type=text/javascript>
+             $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+	</script>
+    </head>
+    <body>
+	    OMG
+	<script type="text/javascript">
+        function postData() {
+	           var db = document.getElementById('db').value;
+	           var list = document.getElementById('list').value;
+	           var data = document.getElementById('data').value;
+	           var url = "/" + db + "/list/" + list;
+		   $.ajax( {
+			   type: "post",
+			   url: url,
+			   contentType: "application/json",
+			   data: JSON.stringify(data)
+		   }
+		   ).done(function (data) { alert(data)})
+		   };
+        function deleteData() {
+	           var db = document.getElementById('db').value;
+	           var url = "/" + db ;
+		   $.ajax( {
+			   type: "delete",
+			   url: url,
+			   contentType: "application/json",
+		   }
+		   ).done(function (data) { alert(data)})
+		   };
+        function getData() {
+	           var db = document.getElementById('db').value;
+	           var list = document.getElementById('list').value;
+	           var data = document.getElementById('data').value;
+	           var url = "/" + db + "/list/" + list;
+		   $.ajax( {
+			   type: "get",
+			   url: url,
+			   contentType: "application/json"
+		   }
+		   ).done(function (data) { $('body').append(data)})
+		   };
+	</script>
+	</br>
+	s3 bucket
+	<input type="text" id="db" />
+	</br>
+	list name
+	<input type="text" id="list" />
+	</br>
+	contents
+	<input type="text" id="data" />
+	</br>
+	<input type="submit" value="POST" onclick="postData();">
+	<input type="submit" value="DELETE" onclick="deleteData();">
+	<input type="submit" value="GET" onclick="getData();">
+    </body>
+</html>
+
