@@ -149,7 +149,7 @@ api.add_resource(File_Auto_Name, '/<string:db>/file/')
 api.add_resource(Book, '/<string:db>')
 
 def main():
-   app.run(host="0.0.0.0", debug=True)
+   app.run(host="0.0.0.0", debug=False)
 
 if __name__ == '__main__':
    app.run(host="0.0.0.0", debug=True)
