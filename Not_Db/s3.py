@@ -3,6 +3,7 @@ import boto3
 import os
 import requests
 import StringIO
+from flask import send_file
 from botocore.exceptions import ClientError
 from threading import Thread
 from time import sleep
@@ -55,9 +56,12 @@ def init(path, name):
         return e
         
 
-def write(key, value, path, name):
+def write(key, value, path, name, raw=False):
     page = StringIO.StringIO()
-    page.write(json.dumps(value))
+    if raw:
+        page.write(value)
+    else:    
+       page.write(json.dumps(value))
     page.seek(0)
     client.upload_fileobj(page, name, key, ExtraArgs={'ContentType': 'application/json'})
         
@@ -65,13 +69,19 @@ def _write(*args):
     t = Thread(target=thread_write, args=args)
     t.start()
 
-def read(key, path, name):
+def read(key, path, name, raw=False):
     s3_path = "https://s3-{}.amazonaws.com/{}/{}".format(
             region,
             name,
             key
             )
-    return requests.get(s3_path).json()
+    if raw:
+        contents = StringIO.StringIO()
+        contents.write(requests.get(s3_path).content)
+        contents.seek(0)
+        return send_file(contents, attachment_filename=key)
+    else:
+        return requests.get(s3_path).json()
     
 
 def remove(key, path, name):

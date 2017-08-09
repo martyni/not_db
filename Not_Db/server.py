@@ -112,9 +112,40 @@ class Item(List):
         self.Book.set(list_name, list_)
         return self.Book.get_contents(list_name)
 
+class File(Book):
+    def get(self, file_name,  db):
+        if not self.Book:
+            self.create_book(db)
+        return self.Book.get_contents(file_name, raw=True)
+
+    def put(self, db, file_name=None):
+        if not self.Book:
+            self.create_book(db)
+        for file_ in request.files:
+            if file_name is None:
+               file_name = request.files[file_].filename
+               self.Book.raw_set(file_name, request.files[file_].read())
+            else:    
+               self.Book.raw_set(file_name, request.files[file_].read())
+        return "/{}/file/{}".format(self.Book.name, file_name) 
+
+    def post(self, *args, **kwargs):
+        return self.put(*args, **kwargs)
+
+    def delete(self, file_name, db):
+        l = self.get_list(list_name, db)
+        resp = 404 if l[-1] == 404 else 200
+        self.Book.remove(list_name)
+        return None, resp
+
+
+class File_Auto_Name(File):
+    pass
 
 api.add_resource(Item, '/<string:db>/list/<string:list_name>/<int:index>')
 api.add_resource(List, '/<string:db>/list/<string:list_name>')
+api.add_resource(File, '/<string:db>/file/<string:file_name>')
+api.add_resource(File_Auto_Name, '/<string:db>/file/')
 api.add_resource(Book, '/<string:db>')
 
 def main():

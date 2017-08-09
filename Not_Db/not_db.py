@@ -21,14 +21,21 @@ class not_db(object):
         self.write_counter += 1
         if not self.write_counter % self.counter_dump:
            self.driver.write('.cache', self.cache, self.path, self.name)
+
+    def raw_set(self, key, file_object):
+        self.driver.write(key, file_object, self.path, self.name, raw=True)
+        self.write_counter += 1
     
-    def get_contents(self, key, cached=True):
+    def get_contents(self, key, cached=True, raw=False):
         def get_from_disk():
             try:
                 self.cache[key] = self.driver.read(key, self.path, self.name)
                 return self.cache[key]
             except:
                 return None
+        if raw:
+           return self.driver.read(key, self.path, self.name, raw=raw)
+            
         if not cached:
            return get_from_disk()
         try:
