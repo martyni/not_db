@@ -167,9 +167,10 @@ api.add_resource(Book, '/<string:db>')
 
 @app.after_request
 def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*.martyni.co.uk*')
-    response.headers.add('Access-Control-Allow-Origin', '*.*.martyni.co.uk*')
-    response.headers.add('Access-Control-Allow-Origin', 'http://fbauth.dev.martyni.co.uk:5000')
+    for ending in '', ':5000':
+        for beginning in '*.martyni.co.uk', '*.*.martyni.co.uk', 'http://fbauth.dev.martyni.co.uk':
+            response.headers.add('Access-Control-Allow-Origin', beginning + ending)
+
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
     return response
