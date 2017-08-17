@@ -1,6 +1,6 @@
 from flask_restful import Resource, Api
 from flask import Flask, request, render_template
-from flask.ext.cors import CORS
+from flask_cors import CORS
 from not_db import not_db
 from botocore.exceptions import ParamValidationError
 import json
