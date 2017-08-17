@@ -47,6 +47,14 @@
 		   }
 		   ).done(function (data) { $('body').append(data)})
 		   };
+        function updateUploadURL() {
+		var db = document.getElementById('db').value;
+		var file = document.getElementById('list').value;
+		var url = "/" + db + "/file/" + file;
+		if (db != '') {
+		   $('form').attr("action", url);
+		}
+	};
 	</script>
 	</br>
 	s3 bucket
@@ -64,7 +72,7 @@
 	</br>
 	<form action="/blablahbpaadjfalkjsdhfal/file/" method=post enctype=multipart/form-data>
 	<input type="file" name="FILE" >
-	<input type=submit value=Upload>
+	<input type=submit value=Upload onMouseOver="updateUploadURL();">
 	</form>
     </body>
 </html>

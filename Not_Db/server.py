@@ -1,8 +1,13 @@
 from flask_restful import Resource, Api
 from flask import Flask, request, render_template
+from flask.ext.cors import CORS
 from not_db import not_db
+from botocore.exceptions import ParamValidationError
 import json
+import re
+import urlparse
 app = Flask(__name__)
+cors = CORS(app, resources={r"/api/*": {"origins": "*martyni.co.uk"}})
 api = Api(app)
 
 @app.route('/')
@@ -12,8 +17,14 @@ def healthcheck():
 class Base(Resource):
 
     Book = None 
+    url = None
     def not_found(self, thing):
         return None, 404 
+
+    def process_url(self):
+        url = urlparse.urlparse(self.url)
+        self.protocol = url.scheme
+        self.domain = url.hostname
 
     def parse_request(self, request):
         if request.json:
@@ -38,6 +49,8 @@ class Book(Base):
     def create_book(self, db, *args, **kwargs):    
         if not self.Book:
            self.Book = not_db(db, driver="s3")
+           self.url = request.url
+           self.process_url()
         if self.Book.error:
             return self.Book.error
 
@@ -121,13 +134,17 @@ class File(Book):
     def put(self, db, file_name=None):
         if not self.Book:
             self.create_book(db)
-        for file_ in request.files:
-            if file_name is None:
-               file_name = request.files[file_].filename
-               self.Book.raw_set(file_name, request.files[file_].read())
-            else:    
-               self.Book.raw_set(file_name, request.files[file_].read())
-        return "/{}/file/{}".format(self.Book.name, file_name) 
+        try:
+           for file_ in request.files:
+               if file_name is None:
+                  file_name = request.files[file_].filename
+                  self.Book.raw_set(file_name, request.files[file_].read())
+               else:    
+                  self.Book.raw_set(file_name, request.files[file_].read())
+        except ParamValidationError:
+            return None, 400
+        print self.protocol, self.domain
+        return "{}/{}/file/{}".format(request.url, self.Book.name, file_name) 
 
     def post(self, *args, **kwargs):
         return self.put(*args, **kwargs)
