@@ -1,13 +1,13 @@
 from flask_restful import Resource, Api
 from flask import Flask, request, render_template
-from flask_cors import CORS
+#from flask_cors import CORS
 from not_db import not_db
 from botocore.exceptions import ParamValidationError
 import json
 import re
 import urlparse
 app = Flask(__name__)
-cors = CORS(app, resources={r"/*": {"origins": "*martyni.co.uk"}})
+#cors = CORS(app, resources={r"/*": {"origins": "*martyni.co.uk"}})
 api = Api(app)
 
 @app.route('/')
@@ -164,6 +164,13 @@ api.add_resource(List, '/<string:db>/list/<string:list_name>')
 api.add_resource(File, '/<string:db>/file/<string:file_name>')
 api.add_resource(File_Auto_Name, '/<string:db>/file/')
 api.add_resource(Book, '/<string:db>')
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*martyni.co.uk')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+    return response
 
 def main():
    app.run(host="0.0.0.0", debug=False)
