@@ -7,7 +7,7 @@ import json
 import re
 import urlparse
 app = Flask(__name__)
-cors = CORS(app, resources={r"/api/*": {"origins": "*martyni.co.uk"}})
+cors = CORS(app, resources={r"/*": {"origins": "*martyni.co.uk"}})
 api = Api(app)
 
 @app.route('/')
