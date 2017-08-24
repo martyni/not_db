@@ -5,7 +5,7 @@
 </head>
 <body onload="brython()">
 <script type="text/python">
-from browser import document, alert, ajax, html
+from browser import document, alert, ajax, html, console
 import json
 
 def get_variables():
@@ -18,17 +18,16 @@ def get_variables():
 	   key_number = int(each.id[-1])
 	   if key_number > total:
 	      total = key_number
-    if inputs.get("value1"):
+    if inputs.get("key1"):
        values = {}
        for index in range(1,total + 1):
           key = inputs["key" + str(index)]
+	  if not key:
+	     continue
           value = inputs["value" + str(index)]
           values[key] = value
-       inputs["value"] = values
+       inputs["value"] = values   
     return inputs
-
-       
-       
 
 def base_request(*args, **kwargs):
     req = ajax.ajax()
@@ -74,6 +73,16 @@ def add_key_value():
     document['inputs'] <= html.INPUT(Id="key{}".format(number_of_values), Class="variable")
     document['inputs'] <= html.INPUT(Id="value{}".format(number_of_values), Class="variable")
     
+def upload_file():
+    vars = get_variables()
+    if vars.get("value") and vars.get("bucket"):
+       url = '/' + vars["bucket"] + '/file/' + vars["value"]
+    elif vars.get("bucket"):
+       url = '/' + vars["bucket"] + '/file/' 
+    else:
+       return alert("Set bucket before uploading file")
+									    
+    document['file_uploader'].action = url
 
 def on_complete(req):
     try:
@@ -86,6 +95,7 @@ document['put'].bind('click', put_item)
 document['get'].bind('click', get_item)
 document['delete'].bind('click', delete_item)
 document['key_value'].bind('click', add_key_value)
+document['upload'].bind('mouseenter', upload_file)
 
 alert("working")
 </script>
@@ -95,6 +105,10 @@ alert("working")
       <input id="list" class="variable">
       <input id="value" class="variable">
       <input id="index" class="variable">
+      <form id="file_uploader" action="/" method=post enctype=multipart/form-data>
+      <input id="file" name="FILE" type="file">
+      <input id="upload" type=submit value=Upload >
+      </form>
       <button id="post">post</button>
       <button id="put">put</button>
       <button id="get">get</button>

@@ -25,11 +25,24 @@ class Base(Resource):
         self.protocol = url.scheme
         self.domain = url.hostname
 
+    def extract_json(self, blob):
+        try:
+            return json.loads(blob)
+        except:
+            try:
+               blob = blob.replace("'",'"')
+               return json.loads(blob)
+            except:
+               return blob 
+
     def parse_request(self, request):
         def json_fail():
-           if not request.form.get('data'):
-               return request.get_data().split("data=")[1]
-           return request.form.get('data')
+           data_string = request.form.get('data')
+           print type(data_string)
+           if not data_string and str(data_string) is not '':
+               print request.get_data()
+               data_string = request.get_data().split('data=')[1]
+           return self.extract_json(data_string)
         try:
            ob = request.json
            return ob if ob else json_fail()
@@ -71,7 +84,6 @@ class List(Book):
 
     def put(self, list_name, db):
         l = self.get_list(list_name, db)
-        print request.get_data()
         if not l[0]:
             self.Book.set(list_name, [self.parse_request(request)])
         else:
