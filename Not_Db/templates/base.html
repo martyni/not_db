@@ -1,79 +1,73 @@
-<!doctype html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	<script type=text/javascript>
-             $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-	</script>
-    </head>
-    <body>
-	    OMG
-	<script type="text/javascript">
-        function postData() {
-	           var db = document.getElementById('db').value;
-	           var list = document.getElementById('list').value;
-	           var data = document.getElementById('data').value;
-	           var url = "/" + db + "/list/" + list;
-		   $.ajax( {
-			   type: "post",
-			   url: url,
-			   contentType: "application/json",
-			   data: JSON.stringify(data)
-		   }
-		   ).done(function (data) { alert(data)})
-		   };
-        function deleteData() {
-	           var db = document.getElementById('db').value;
-	           var url = "/" + db ;
-		   $.ajax( {
-			   type: "delete",
-			   url: url,
-			   contentType: "application/json",
-		   }
-		   ).done(function (data) { alert(data)})
-		   };
-        function getData() {
-	           var db = document.getElementById('db').value;
-	           var list = document.getElementById('list').value;
-	           var data = document.getElementById('data').value;
-	           var url = "/" + db + "/list/" + list;
-		   $.ajax( {
-			   type: "get",
-			   url: url,
-			   contentType: "application/json"
-		   }
-		   ).done(function (data) { $('body').append(data)})
-		   };
-        function updateUploadURL() {
-		var db = document.getElementById('db').value;
-		var file = document.getElementById('list').value;
-		var url = "/" + db + "/file/" + file;
-		if (db != '') {
-		   $('form').attr("action", url);
-		}
-	};
-	</script>
-	</br>
-	s3 bucket
-	<input type="text" id="db" />
-	</br>
-	list name
-	<input type="text" id="list" />
-	</br>
-	contents
-	<input type="text" id="data" />
-	</br>
-	<input type="submit" value="POST" onclick="postData();">
-	<input type="submit" value="DELETE" onclick="deleteData();">
-	<input type="submit" value="GET" onclick="getData();">
-	</br>
-	<form action="/blablahbpaadjfalkjsdhfal/file/" method=post enctype=multipart/form-data>
-	<input type="file" name="FILE" >
-	<input type=submit value=Upload onMouseOver="updateUploadURL();">
-	</form>
-    </body>
-</html>
 
+<html>
+<head>
+<script src="http://brython.info/src/brython_dist.js"></script>
+</head>
+<body onload="brython()">
+<script type="text/python">
+from browser import document, alert, ajax 
+import json
+
+
+def get_variables():
+    vars = document.get(selector='input.variable')
+    return { each.id: document[each.id].value for each in vars}
+
+def base_request(*args, **kwargs):
+    req = ajax.ajax()
+    req.bind('complete', on_complete)
+    req.open(*args)
+    req.set_header('content-type','application/x-www-form-urlencoded')
+    req.send(kwargs)
+
+def post_item():
+    vars = get_variables()
+    if vars.get("index") and vars.get("list"):
+       base_request('POST','/' + vars["bucket"] + '/list/' + vars["list"] + "/" + vars["index"], True, data=vars["value"])
+    elif vars.get("list"):
+       base_request('POST','/' + vars["bucket"] + '/list/' + vars["list"], True, data=vars["value"])
+
+def put_item():
+    vars = get_variables()
+    if vars.get("index") and vars.get("list"):
+       base_request('PUT','/' + vars["bucket"] + '/list/' + vars["list"] + "/" + vars["index"], True, data=vars["value"])
+    elif vars.get("list"):
+       base_request('PUT','/' + vars["bucket"] + '/list/' + vars["list"], True, data=vars["value"])
+
+def get_item():
+    vars = get_variables()
+    if vars.get("index") and vars.get("list"):
+       base_request('GET','/' + vars["bucket"] + '/list/' + vars["list"] + "/" + vars["index"],True)
+    elif vars.get("list"):
+       base_request('GET','/' + vars["bucket"] + '/list/' + vars["list"],True)
+
+def delete_item():
+    vars = get_variables()
+    if vars.get("index") and vars.get("list"):
+       base_request('DELETE','/' + vars["bucket"] + '/list/' + vars["list"] + "/" + vars["index"],True)
+    elif vars.get("list"):
+       base_request('DELETE','/' + vars["bucket"] + '/list/' + vars["list"],True)
+    else:
+       base_request('DELETE','/' + vars["bucket"],True)
+
+
+def on_complete(req):
+    alert(req.text)
+
+document['post'].bind('click', post_item)
+document['put'].bind('click', put_item)
+document['get'].bind('click', get_item)
+document['delete'].bind('click', delete_item)
+
+alert("working")
+</script>
+<input id="bucket" class="variable">
+<input id="list" class="variable">
+<input id="value" class="variable">
+<input id="index" class="variable">
+<button id="post">post</button>
+<button id="put">put</button>
+<button id="get">get</button>
+<button id="delete">delete</button>
+</body>
+</html>

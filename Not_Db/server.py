@@ -1,6 +1,5 @@
 from flask_restful import Resource, Api
 from flask import Flask, request, render_template
-#from flask_cors import CORS
 from not_db import not_db
 from botocore.exceptions import ParamValidationError
 import json
@@ -27,10 +26,15 @@ class Base(Resource):
         self.domain = url.hostname
 
     def parse_request(self, request):
-        if request.json:
-           return request.json
-        else:
+        def json_fail():
+           if not request.form.get('data'):
+               return request.get_data().split("data=")[1]
            return request.form.get('data')
+        try:
+           ob = request.json
+           return ob if ob else json_fail()
+        except:
+           return json_fail()
 
 class Book(Base):
     def get(self, db):
@@ -67,6 +71,7 @@ class List(Book):
 
     def put(self, list_name, db):
         l = self.get_list(list_name, db)
+        print request.get_data()
         if not l[0]:
             self.Book.set(list_name, [self.parse_request(request)])
         else:
