@@ -5,13 +5,30 @@
 </head>
 <body onload="brython()">
 <script type="text/python">
-from browser import document, alert, ajax 
+from browser import document, alert, ajax, html
 import json
-
 
 def get_variables():
     vars = document.get(selector='input.variable')
-    return { each.id: document[each.id].value for each in vars}
+    inputs = {}
+    total = 0
+    for each in vars:
+        inputs[each.id] = document[each.id].value
+        if "key" in each.id:
+	   key_number = int(each.id[-1])
+	   if key_number > total:
+	      total = key_number
+    if inputs.get("value1"):
+       values = {}
+       for index in range(1,total + 1):
+          key = inputs["key" + str(index)]
+          value = inputs["value" + str(index)]
+          values[key] = value
+       inputs["value"] = values
+    return inputs
+
+       
+       
 
 def base_request(*args, **kwargs):
     req = ajax.ajax()
@@ -50,24 +67,40 @@ def delete_item():
     else:
        base_request('DELETE','/' + vars["bucket"],True)
 
+def add_key_value():
+    vars = get_variables()
+    number_of_values = len([i for i in vars if "value" in i])
+    document['inputs'] <= html.BR()
+    document['inputs'] <= html.INPUT(Id="key{}".format(number_of_values), Class="variable")
+    document['inputs'] <= html.INPUT(Id="value{}".format(number_of_values), Class="variable")
+    
 
 def on_complete(req):
-    alert(req.text)
+    try:
+       alert(json.loads(req.text))
+    except:   
+       alert(req.text)
 
 document['post'].bind('click', post_item)
 document['put'].bind('click', put_item)
 document['get'].bind('click', get_item)
 document['delete'].bind('click', delete_item)
+document['key_value'].bind('click', add_key_value)
 
 alert("working")
 </script>
-<input id="bucket" class="variable">
-<input id="list" class="variable">
-<input id="value" class="variable">
-<input id="index" class="variable">
-<button id="post">post</button>
-<button id="put">put</button>
-<button id="get">get</button>
-<button id="delete">delete</button>
+<div id="app">
+   <container id="inputs">
+      <input id="bucket" class="variable">
+      <input id="list" class="variable">
+      <input id="value" class="variable">
+      <input id="index" class="variable">
+      <button id="post">post</button>
+      <button id="put">put</button>
+      <button id="get">get</button>
+      <button id="delete">delete</button>
+      <button id="key_value">+</button>
+   </container>
+</div>
 </body>
 </html>
