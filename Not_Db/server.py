@@ -192,7 +192,7 @@ class File(Book):
         referrer = request.referrer.split("?")[0]
         if "aws" not in referrer:
             for env in ["prod", "dev", "stge"]:
-                referrer.replace( "/" + env )
+                referrer = referrer.replace( "/" + env, "" )
         return  redirect(referrer + "?refer={}".format(request.url), code=302)
 
     def delete(self, file_name, db):
