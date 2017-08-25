@@ -1,17 +1,22 @@
 from flask_restful import Resource, Api
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect
 from not_db import not_db
 from botocore.exceptions import ParamValidationError
 import json
 import re
 import urlparse
+from pprint import pprint
 app = Flask(__name__)
 #cors = CORS(app, resources={r"/*": {"origins": "*martyni.co.uk"}})
 api = Api(app)
 
 @app.route('/')
 def healthcheck():
-    return render_template("base.html")
+    referrer = request.args.get('refer')
+    if referrer:
+        return render_template("base.html", referrer=referrer)
+    else:
+        return render_template("base.html", referrer=request.referrer)
 
 class Base(Resource):
 
@@ -151,6 +156,10 @@ class File(Book):
     def put(self, db, file_name=None):
         if not self.Book:
             self.create_book(db)
+        print len(request.files)
+        print len(request.data)
+        pprint(request.__dict__)
+        pprint(request.get_data())
         try:
            for file_ in request.files:
                if file_name is None:
@@ -161,10 +170,27 @@ class File(Book):
         except ParamValidationError:
             return None, 400
         print self.protocol, self.domain
-        return "{}/{}/file/{}".format(request.url, self.Book.name, file_name) 
+        return "{}/{}".format(request.url, file_name)
 
-    def post(self, *args, **kwargs):
-        return self.put(*args, **kwargs)
+    def post(self, db, file_name=None):
+        if not self.Book:
+            self.create_book(db)
+        print len(request.files)
+        print len(request.data)
+        pprint(request.__dict__)
+        pprint(request.get_data())
+        try:
+           for file_ in request.files:
+               if file_name is None:
+                  file_name = request.files[file_].filename
+                  self.Book.raw_set(file_name, request.files[file_].read())
+               else:    
+                  self.Book.raw_set(file_name, request.files[file_].read())
+        except ParamValidationError:
+            return None, 400
+        print self.protocol, self.domain
+        referrer = request.referrer.split("?")[0]
+        return  redirect(referrer + "?refer={}".format(request.url), code=302)
 
     def delete(self, file_name, db):
         l = self.get_list(list_name, db)

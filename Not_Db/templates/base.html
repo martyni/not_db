@@ -72,15 +72,24 @@ def add_key_value():
     document['inputs'] <= html.BR()
     document['inputs'] <= html.INPUT(Id="key{}".format(number_of_values), Class="variable")
     document['inputs'] <= html.INPUT(Id="value{}".format(number_of_values), Class="variable")
-    
+
+def handle_file_name(filename):
+    if "/" in filename:
+       filename = filename.split("/")[-1]
+    if "\\" in filename:
+       filename = filename.split("\\")[-1]
+    filename.replace(" ", "+")
+    return filename
+
 def upload_file():
     vars = get_variables()
     if vars.get("value") and vars.get("bucket"):
        url = '/' + vars["bucket"] + '/file/' + vars["value"]
     elif vars.get("bucket"):
-       url = '/' + vars["bucket"] + '/file/' 
+       file_name =  handle_file_name(document['file'].value)
+       url = '/' + vars["bucket"] + '/file/' + file_name
     else:
-       return alert("Set bucket before uploading file")
+       return ''
 									    
     document['file_uploader'].action = url
 
@@ -96,8 +105,8 @@ document['get'].bind('click', get_item)
 document['delete'].bind('click', delete_item)
 document['key_value'].bind('click', add_key_value)
 document['upload'].bind('mouseenter', upload_file)
-
-alert("working")
+alert("{{ referrer }}")
+document['iframe'].src ="{{ referrer }}"
 </script>
 <div id="app">
    <container id="inputs">
@@ -106,7 +115,7 @@ alert("working")
       <input id="value" class="variable">
       <input id="index" class="variable">
       <form id="file_uploader" action="/" method=post enctype=multipart/form-data>
-      <input id="file" name="FILE" type="file">
+      <input id="file" name="FILE" type="file", class="variable">
       <input id="upload" type=submit value=Upload >
       </form>
       <button id="post">post</button>
@@ -115,6 +124,8 @@ alert("working")
       <button id="delete">delete</button>
       <button id="key_value">+</button>
    </container>
+   <br/>
+   <iframe id="iframe" width="100%" height="100%" frameborder="0"></iframe>
 </div>
 </body>
 </html>
