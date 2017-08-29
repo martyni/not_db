@@ -44,9 +44,7 @@ class Base(Resource):
     def parse_request(self, request):
         def json_fail():
            data_string = request.form.get('data')
-           print type(data_string)
            if not data_string and str(data_string) is not '':
-               print request.get_data()
                data_string = request.get_data().split('data=')[1]
            return self.extract_json(data_string)
         try:
@@ -157,10 +155,6 @@ class File(Book):
     def put(self, db, file_name=None):
         if not self.Book:
             self.create_book(db)
-        print len(request.files)
-        print len(request.data)
-        pprint(request.__dict__)
-        pprint(request.get_data())
         try:
            for file_ in request.files:
                if file_name is None:
@@ -170,12 +164,13 @@ class File(Book):
                   self.Book.raw_set(file_name, request.files[file_].read())
         except ParamValidationError:
             return None, 400
-        print self.protocol, self.domain
         return "{}/{}".format(request.url, file_name)
 
     def post(self, db, file_name=None):
         if not self.Book:
             self.create_book(db)
+        if self.Book.error:
+            return str(self.Book.error), 401
         try:
            for file_ in request.files:
                if file_name is None:

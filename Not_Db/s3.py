@@ -60,10 +60,12 @@ def write(key, value, path, name, raw=False):
     page = StringIO.StringIO()
     if raw:
         page.write(value)
+        extra_args={}
     else:    
        page.write(json.dumps(value))
+       extra_args={'ContentType': 'application/json'}
     page.seek(0)
-    client.upload_fileobj(page, name, key, ExtraArgs={'ContentType': 'application/json'})
+    client.upload_fileobj(page, name, key, ExtraArgs=extra_args)
         
 def _write(*args):
     t = Thread(target=thread_write, args=args)
