@@ -190,9 +190,8 @@ class File(Book):
             return None, 400
         print self.protocol, self.domain
         referrer = request.referrer.split("?")[0]
-        if "aws" not in referrer:
-            for env in ["prod", "dev", "stge"]:
-                referrer = referrer.replace( "/" + env, "" )
+        for env in ["prod", "dev", "stge"]:
+            referrer = referrer.replace( "/" + env, "" )
         return  redirect(referrer + "?refer={}".format(request.url), code=302)
 
     def delete(self, file_name, db):
