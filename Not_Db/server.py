@@ -187,7 +187,7 @@ class File(Book):
         referrer = request.referrer.split("?")[0]
         for env in ["/prod", "/dev", "/stge"]:
             referrer = referrer.lower().replace( env, "" )
-        return  redirect(referrer + "?refer={}".format(request.url), code=302)
+        return  redirect(referrer + "?refer={}".format(referrer), code=302)
 
     def delete(self, file_name, db):
         l = self.get_list(list_name, db)
