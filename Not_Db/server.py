@@ -175,10 +175,6 @@ class File(Book):
     def post(self, db, file_name=None):
         if not self.Book:
             self.create_book(db)
-        print len(request.files)
-        print len(request.data)
-        pprint(request.__dict__)
-        pprint(request.get_data())
         try:
            for file_ in request.files:
                if file_name is None:
@@ -188,10 +184,9 @@ class File(Book):
                   self.Book.raw_set(file_name, request.files[file_].read())
         except ParamValidationError:
             return None, 400
-        print self.protocol, self.domain
         referrer = request.referrer.split("?")[0]
-        for env in ["prod", "dev", "stge"]:
-            referrer = referrer.replace( "/" + env, "" )
+        for env in ["/prod", "/dev", "/stge"]:
+            referrer = referrer.lower().replace( env, "" )
         return  redirect(referrer + "?refer={}".format(request.url), code=302)
 
     def delete(self, file_name, db):
