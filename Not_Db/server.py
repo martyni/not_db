@@ -27,8 +27,9 @@ class Base(Resource):
 
     def process_url(self):
         url = urlparse.urlparse(self.url)
-        self.protocol = url.scheme
+        self.protocol = url.scheme + "://"
         self.domain = url.hostname
+        self.port = ":" + str(url.port) or ''
 
     def extract_json(self, blob):
         try:
@@ -184,11 +185,13 @@ class File(Book):
                   self.Book.raw_set(file_name, request.files[file_].read())
         except ParamValidationError:
             return None, 400
-        referrer = request.path.split("?")[0]
-        match = re.match(r"^(/prod|/stge|/dev)(/.*/file/.*$)", referrer)
+        referrer = request.referrer.split("?")[0].replace(self.protocol + self.domain + self.port, "")
+        match = re.match(r"^(/prod|/stge|/dev)(/.*/file/.*$)", request.path)
         if match:
-            referrer = match.group(2)
-        return  redirect(referrer + "?refer={}".format(referrer), code=302)
+            path = match.group(2)
+        else:
+            path = request.path
+        return  redirect("{}/?refer={}".format(referrer, path), code=302)
 
     def delete(self, file_name, db):
         l = self.get_list(list_name, db)
