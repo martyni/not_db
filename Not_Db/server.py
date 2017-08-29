@@ -184,9 +184,10 @@ class File(Book):
                   self.Book.raw_set(file_name, request.files[file_].read())
         except ParamValidationError:
             return None, 400
-        referrer = request.referrer.split("?")[0]
-        for env in ["/prod", "/dev", "/stge"]:
-            referrer = referrer.lower().replace( env, "" )
+        referrer = request.path.split("?")[0]
+        match = re.match(r"^(/prod|/stge|/dev)(/.*/file/.*$)", referrer)
+        if match:
+            referrer = match.group(2)
         return  redirect(referrer + "?refer={}".format(referrer), code=302)
 
     def delete(self, file_name, db):
