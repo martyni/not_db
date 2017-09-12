@@ -207,7 +207,9 @@ api.add_resource(Book, '/<string:db>')
 
 @app.after_request
 def after_request(response):
-    search = re.search(r'(http(s)?://)(.*\.martyni.co.uk)(:5000)?(.*)', request.referer)
+    search = None
+    if request.__dict__['environ'].get('HTTP_REFERER'):
+       search = re.search(r'(http(s)?://)(.*\.martyni.co.uk)(:5000)?(.*)', request.__dict__['environ']['HTTP_REFERER'])
     if search:
        if search.group(4):
            cors = search.group(1) + search.group(3) + search.group(4)
