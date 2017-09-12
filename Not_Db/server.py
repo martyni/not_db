@@ -44,8 +44,9 @@ class Base(Resource):
     def parse_request(self, request):
         def json_fail():
            data_string = request.form.get('data')
+           pprint(request.__dict__)
            if not data_string and str(data_string) is not '':
-               data_string = request.get_data().split('data=')[1]
+               data_string = request.get_data().split('data=')[-1]
            return self.extract_json(data_string)
         try:
            ob = request.json
@@ -206,10 +207,12 @@ api.add_resource(Book, '/<string:db>')
 
 @app.after_request
 def after_request(response):
+    domain_list = []
     for ending in '', ':5000':
         for beginning in '*.martyni.co.uk', '*.*.martyni.co.uk', 'http://fbauth.dev.martyni.co.uk':
-            response.headers.add('Access-Control-Allow-Origin', beginning + ending)
+            domains.append(beginning + ending) 
 
+    response.headers.add('Access-Control-Allow-Origin', ", ".join(domain_list))
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
     return response

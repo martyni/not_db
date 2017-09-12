@@ -28,7 +28,7 @@ def get(path, payload=None):
         return 0
 
 def put(path, payload):
-    req = requests.put(base_url + path, data="data=" + json.dumps(payload))
+    req = requests.put(base_url + path, headers={'content-type': 'application/json'}, data=json.dumps(payload))
     print req.text
     if req:
         print "success: {}".format(base_url + path)
@@ -70,15 +70,18 @@ paths = [random_string(12)]
 lists = ["dave"]
 complete_paths = ["/{}/list/{}".format(path, list_) for path in paths for list_ in lists ]
 
+# Put item in list
 for path in complete_paths:
     if not put(path, "hi"):
         sys.exit(1)
 
+# Check its there
 for path in complete_paths:
     if not get(path, "hi"):
         sys.exit(1)
 
 
+# Put random data in list and check its there
 for path in complete_paths:
     my_string = random_string(4)
     put(path, my_string)
@@ -93,6 +96,7 @@ for path in complete_paths:
             sys.exit(1)
     else:
         sys.exit(1)
+
 
 for path in paths:
     if not delete("/" + path):
