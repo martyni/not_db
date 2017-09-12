@@ -210,8 +210,7 @@ def after_request(response):
     domain_list = []
     for ending in '', ':5000':
         for beginning in '*.martyni.co.uk', '*.*.martyni.co.uk', 'http://fbauth.dev.martyni.co.uk':
-            domains.append(beginning + ending) 
-
+            domain_list.append(beginning + ending) 
     response.headers.add('Access-Control-Allow-Origin', ", ".join(domain_list))
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
