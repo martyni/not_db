@@ -207,13 +207,12 @@ api.add_resource(Book, '/<string:db>')
 
 @app.after_request
 def after_request(response):
-    domain_list = []
-    for ending in '', ':5000':
-        for beginning in '*.martyni.co.uk', '*.*.martyni.co.uk', 'http://fbauth.dev.martyni.co.uk':
-            domain_list.append(beginning + ending) 
-    response.headers.add('Access-Control-Allow-Origin', ", ".join(domain_list))
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+    search = re.search(r'(http(s)?://)(.*\.martyni.co.uk)(:5000)?(.*)', request.url)
+    if search:
+       cors = search.group(1) + search.group(3) + search.group(4)
+       response.headers.add('Access-Control-Allow-Origin', cors)
+       response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+       response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
     return response
 
 def main():
