@@ -209,7 +209,10 @@ api.add_resource(Book, '/<string:db>')
 def after_request(response):
     search = re.search(r'(http(s)?://)(.*\.martyni.co.uk)(:5000)?(.*)', request.url)
     if search:
-       cors = search.group(1) + search.group(3) + search.group(4)
+       if search.group(4):
+           cors = search.group(1) + search.group(3) + search.group(4)
+       else:
+           cors = search.group(1) + search.group(3)
        response.headers.add('Access-Control-Allow-Origin', cors)
        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
