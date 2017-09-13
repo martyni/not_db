@@ -170,7 +170,7 @@ class File(Book):
     def post(self, db, file_name=None):
         if not self.Book:
             self.create_book(db)
-        if self.Book.error:
+        if self.Book.error and "BucketAlreadyOwnedByYou" not in str(self.Book.error):
             return str(self.Book.error), 401
         try:
            for file_ in request.files:
