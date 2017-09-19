@@ -80,7 +80,7 @@ for path in complete_paths:
     if not get(path, "hi"):
         sys.exit(1)
 
-
+print 0
 # Put random data in list and check its there
 for path in complete_paths:
     my_string = random_string(4)
@@ -89,6 +89,7 @@ for path in complete_paths:
     put(path, my_string_2)
     serializable(path)
     payload = get_json(path)
+    print 1
     if payload:
         if my_string in payload and my_string_2 in payload:
             print "payload contains: {} {}".format(my_string, my_string_2), payload
@@ -96,6 +97,7 @@ for path in complete_paths:
             sys.exit(1)
     else:
         sys.exit(1)
+    print 2
 
 
 for path in paths:
