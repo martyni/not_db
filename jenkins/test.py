@@ -91,8 +91,8 @@ for path in complete_paths:
     payload = get_json(path)
     print 1
     if payload:
-        if my_string in payload and my_string_2 in payload:
-            print "payload contains: {} {}".format(my_string, my_string_2), payload
+        if my_string not in payload and my_string_2 in payload:
+            print "payload contains: {} not {}".format(my_string_2, my_string), payload
         else:
             sys.exit(1)
     else:
