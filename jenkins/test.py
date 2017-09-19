@@ -77,7 +77,7 @@ for path in complete_paths:
 
 # Check its there
 for path in complete_paths:
-    if not get(path, "dave"):
+    if not get(path, "hi"):
         sys.exit(1)
 
 
