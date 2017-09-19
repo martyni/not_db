@@ -10,7 +10,7 @@ def random_string(n):
     return ''.join(random.choice(string.ascii_lowercase) for _ in range(n))
 
 def get(path, payload=None):
-    req = requests.get(base_url + path)
+    req = requests.get(base_url + path, allow_redirects=True)
     print req.text
     if req and not payload:
         print "success: {}".format(base_url + path) 
@@ -68,7 +68,7 @@ def check_this_errors(path):
         return 1
 paths = [random_string(12)]
 lists = ["dave"]
-complete_paths = ["/{}/list/{}".format(path, list_) for path in paths for list_ in lists ]
+complete_paths = ["/{}/thing/{}".format(path, list_) for path in paths for list_ in lists ]
 
 # Put item in list
 for path in complete_paths:
@@ -77,7 +77,7 @@ for path in complete_paths:
 
 # Check its there
 for path in complete_paths:
-    if not get(path, "hi"):
+    if not get(path, "dave"):
         sys.exit(1)
 
 

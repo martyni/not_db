@@ -67,6 +67,7 @@ class Book(Base):
     def delete(self, db):
         self.create_book(db)
         self.Book.drop()
+        return None, 204
 
     def create_book(self, db, *args, **kwargs):    
         if not self.Book:
@@ -89,10 +90,20 @@ class List(Book):
 
     def put(self, list_name, db):
         l = self.get_list(list_name, db)
+        thing = Thing()
+        data = self.parse_request(request)
+        print data
         if not l[0]:
-            self.Book.set(list_name, [self.parse_request(request)])
+            thing_name = list_name + ".0"
+            thing_path = "/" + db + "/thing/" + thing_name
+            thing.put(thing_name, db, data=data)
+            self.Book.set(list_name, [thing_path])
         else:
-            self.Book.set(list_name, l + [self.parse_request(request)])
+            list_size = len(l)
+            thing_name = list_name + ".{}".format(list_size)
+            thing_path = "/" + db + "/thing/" + thing_name
+            thing.put(thing_name, db, data=data)
+            self.Book.set(list_name, l + [thing_path])
         return self.Book.get_contents(list_name)
 
     def post(self, *args, **kwargs):
@@ -100,13 +111,12 @@ class List(Book):
 
     def delete(self, list_name, db):
         l = self.get_list(list_name, db)
-        resp = 404 if l[-1] == 404 else 200
+        resp = 404 if l[-1] == 404 else 204
         self.Book.remove(list_name)
-        return None, resp
+        return None, resp 
 
 
 class Item(List):
-
 
     def index_fail(self, index, list_name, db):
         list_ = self.get_list(list_name, db)
@@ -120,24 +130,19 @@ class Item(List):
         list_, index_exist = self.index_fail(index, list_name, db) 
         if not index_exist:
             return self.not_found(list_) 
-        return self.Book.get_contents(list_name, db)[index]
+        return redirect(list_[index], 301)
 
 
     def put(self, index, list_name, db):
         list_, index_exist = self.index_fail(index, list_name, db)
+        thing = Thing()
         if not index_exist:
             return self.not_found(list_) 
-        list_.insert(index, self.parse_request(request))
-        self.Book.set(list_name, list_)
+        thing.put(list_name + ".{}".format(index), db, data=self.parse_request(request))
         return self.Book.get_contents(list_name)
 
-    def post(self, index, list_name, db):
-        list_, index_exist = self.index_fail(index, list_name, db)
-        if not index_exist:
-            return self.not_found(list_) 
-        list_[index] = self.parse_request(request)
-        self.Book.set(list_name, list_)
-        return self.Book.get_contents(list_name)
+    def post(self, *args, **kwargs):
+        return self.put(*args, **kwargs)
 
     def delete(self, index, list_name, db):
         list_, index_exist = self.index_fail(index, list_name, db)
@@ -145,7 +150,7 @@ class Item(List):
             return self.not_found(list_) 
         list_.pop(index)
         self.Book.set(list_name, list_)
-        return self.Book.get_contents(list_name)
+        return self.Book.get_contents(list_name), 204
 
 class File(Book):
     def get(self, file_name,  db):
@@ -191,16 +196,48 @@ class File(Book):
 
     def delete(self, file_name, db):
         l = self.get_list(list_name, db)
-        resp = 404 if l[-1] == 404 else 200
+        resp = 404 if l[-1] == 404 else 204
         self.Book.remove(list_name)
         return None, resp
 
+
+class Thing(Book):
+    def get_thing(self, thing_name, db):
+        if not self.Book:
+            self.create_book(db)
+        l = self.Book.get_contents(thing_name)
+        return l if l else self.not_found(l)
+
+    def get(self, thing_name, db):
+        return self.get_thing(thing_name, db)
+
+    def put(self, thing_name, db, data=None):
+        d = self.get_thing(thing_name, db)
+        if not data:
+            data=self.parse_request(request)
+        print "I'm going to create thing {thing} in db {db} with contents {contents}".format(
+                thing=thing_name,
+                db=db,
+                contents=data
+                )
+        self.Book.set(thing_name, data)
+        return self.Book.get_contents(thing_name)
+
+    def post(self, *args, **kwargs):
+        return self.put(*args, **kwargs)
+
+    def delete(self, thing_name, db):
+        l = self.get_thing(thing_name, db)
+        resp = 404 if l[-1] == 404 else 204
+        self.Book.remove(thing_name)
+        return None, resp
 
 class File_Auto_Name(File):
     pass
 
 api.add_resource(Item, '/<string:db>/list/<string:list_name>/<int:index>')
 api.add_resource(List, '/<string:db>/list/<string:list_name>')
+api.add_resource(Thing, '/<string:db>/thing/<string:thing_name>')
 api.add_resource(File, '/<string:db>/file/<string:file_name>')
 api.add_resource(File_Auto_Name, '/<string:db>/file/')
 api.add_resource(Book, '/<string:db>')
