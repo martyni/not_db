@@ -83,7 +83,11 @@ class List(Book):
         if not self.Book:
             self.create_book(db)
         l = self.Book.get_contents(list_name)
-        return l if l else self.not_found(l)
+        print request.args
+        if request.args.get('reverse'):
+            return l[::-1] if l else self.not_found(l)
+        else:
+            return l if l else self.not_found(l)
 
     def get(self, list_name, db):
         return self.get_list(list_name, db)
