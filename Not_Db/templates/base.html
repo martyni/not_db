@@ -43,6 +43,11 @@ def post_item():
     elif vars.get("list"):
        base_request('POST','/' + vars["bucket"] + '/list/' + vars["list"], True, data=vars["value"])
 
+def post_link():
+    vars = get_variables()
+    if vars.get("list"):
+       base_request('POST','/' + vars["bucket"] + '/link/' + vars["list"],  True, data=vars["value"])
+
 def put_item():
     vars = get_variables()
     if vars.get("index") and vars.get("list"):
@@ -100,6 +105,7 @@ def on_complete(req):
        alert(req.text)
 
 document['post'].bind('click', post_item)
+document['link'].bind('click', post_link)
 document['put'].bind('click', put_item)
 document['get'].bind('click', get_item)
 document['delete'].bind('click', delete_item)
@@ -119,6 +125,7 @@ document['iframe'].src ="{{ referrer }}"
       <input id="upload" type=submit value=Upload >
       </form>
       <button id="post">post</button>
+      <button id="link">link</button>
       <button id="put">put</button>
       <button id="get">get</button>
       <button id="delete">delete</button>

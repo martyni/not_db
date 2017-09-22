@@ -200,6 +200,22 @@ class File(Book):
         self.Book.remove(list_name)
         return None, resp
 
+class Linked_List(List):
+
+    def put(self, list_name, db):
+        l = self.get_list(list_name, db)
+        data = self.parse_request(request)
+        print "this is the data  ", data
+        print type(data)
+        if type(data) == str or type(data) == unicode:
+            thing_path = data
+        elif data.get('link'):
+            thing_path = data['link']
+        if not l[0]:
+            self.Book.set(list_name, [thing_path])
+        else:
+            self.Book.set(list_name, l + [thing_path])
+        return self.Book.get_contents(list_name)
 
 class Thing(Book):
     def get_thing(self, thing_name, db):
@@ -237,6 +253,7 @@ class File_Auto_Name(File):
 
 api.add_resource(Item, '/<string:db>/list/<string:list_name>/<int:index>')
 api.add_resource(List, '/<string:db>/list/<string:list_name>')
+api.add_resource(Linked_List, '/<string:db>/link/<string:list_name>')
 api.add_resource(Thing, '/<string:db>/thing/<string:thing_name>')
 api.add_resource(File, '/<string:db>/file/<string:file_name>')
 api.add_resource(File_Auto_Name, '/<string:db>/file/')
