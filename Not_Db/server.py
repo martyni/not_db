@@ -188,9 +188,14 @@ class File(Book):
                   self.Book.raw_set(file_name, request.files[file_].read())
                else:    
                   self.Book.raw_set(file_name, request.files[file_].read())
+               print "file stuff works"
         except ParamValidationError:
             return None, 400
-        referrer = request.referrer.split("?")[0].replace(self.protocol + self.domain + self.port, "")
+        if request.referrer is not None:
+           referrer = request.referrer.split("?")[0].replace(self.protocol + self.domain + self.port, "")
+        else:
+           referrer = request.url.split("?")[0].replace(self.protocol + self.domain + self.port, "")
+        
         match = re.match(r"^(/prod|/stge|/dev)(/.*/file/.*$)", request.path)
         if match:
             path = match.group(2)
