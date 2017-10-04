@@ -196,7 +196,7 @@ class File(Book):
         else:
            referrer = request.url.split("?")[0].replace(self.protocol + self.domain + self.port, "")
         
-        match = re.match(r"^(/prod|/stge|/dev)(/.*/file/.*$)", request.path)
+        match = re.match(r"^(/prod|/stge|/dev)(/.*/file[/.]*.*$)", request.path)
         if match:
             path = match.group(2)
         else:
