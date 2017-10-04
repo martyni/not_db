@@ -214,7 +214,7 @@ class File(Book):
         if match:
             path = match.group(2)
         else:
-            path = request.path
+            path = request.path.replace("/prod","")
         return  redirect("{}?refer={}".format(referrer, path), code=302)
 
     def delete(self, file_name, db):
