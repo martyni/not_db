@@ -4,11 +4,13 @@ from not_db import not_db
 from botocore.exceptions import ParamValidationError
 import json
 import re
+from werkzeug.routing import BaseConverter
 import urlparse
 from pprint import pprint
 app = Flask(__name__)
 #cors = CORS(app, resources={r"/*": {"origins": "*martyni.co.uk"}})
 api = Api(app)
+
 
 @app.route('/')
 def healthcheck():
@@ -17,6 +19,18 @@ def healthcheck():
         return render_template("base.html", referrer=referrer)
     else:
         return render_template("base.html", referrer=request.referrer)
+
+class RegexConverter(BaseConverter):
+    def __init__(self, url_map, *items):
+        super(RegexConverter, self).__init__(url_map)
+        self.regex = items[0]
+
+
+app.url_map.converters['regex'] = RegexConverter
+
+@app.route('/<regex("(prod|stage|dev)"):slug>/<regex(".*"):url>')
+def get_around_lambda(url, slug):
+    return redirect(url, 301)
 
 class Base(Resource):
 
@@ -267,6 +281,8 @@ api.add_resource(Thing, '/<string:db>/thing/<string:thing_name>')
 api.add_resource(File, '/<string:db>/file/<string:file_name>')
 api.add_resource(File_Auto_Name, '/<string:db>/file/')
 api.add_resource(Book, '/<string:db>')
+
+
 
 @app.after_request
 def after_request(response):
