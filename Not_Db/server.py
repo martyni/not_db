@@ -215,7 +215,10 @@ class File(Book):
             path = match.group(2)
         else:
             path = request.path.replace("/prod","")
-        return  redirect("{}?refer={}".format(referrer, path), code=302)
+        if file_name not in referrer:
+            return redirect("{}?refer={}".format(referrer + file_name, path + file_name), code=302)
+        else:
+            return  redirect("{}?refer={}".format(referrer, path), code=302)
 
     def delete(self, file_name, db):
         l = self.get_list(list_name, db)
