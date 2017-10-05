@@ -30,7 +30,7 @@ app.url_map.converters['regex'] = RegexConverter
 
 @app.route('/<regex("(prod|stage|dev)"):slug>/<regex(".*"):url>')
 def get_around_lambda(url, slug):
-    return redirect(url, 301)
+    return redirect("/" + url, 301)
 
 class Base(Resource):
 
