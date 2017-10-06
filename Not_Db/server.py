@@ -122,6 +122,10 @@ class List(Book):
             thing_path = "/" + db + "/thing/" + thing_name
             thing.put(thing_name, db, data=data)
             self.Book.set(list_name, l + [thing_path])
+        if request.args.get("tags"):
+           ll = Linked_List()
+           for tag in request.args.get("tags").split(","):
+              ll.put( tag, db, link=thing_path)
         return self.Book.get_contents(list_name)
 
     def post(self, *args, **kwargs):
@@ -228,9 +232,12 @@ class File(Book):
 
 class Linked_List(List):
 
-    def put(self, list_name, db):
+    def put(self, list_name, db, link=None):
         l = self.get_list(list_name, db)
-        data = self.parse_request(request)
+        if not link:
+           data = self.parse_request(request)
+        else:
+           data = link
         print "this is the data  ", data
         print type(data)
         if type(data) == str or type(data) == unicode:
