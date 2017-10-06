@@ -110,7 +110,6 @@ class List(Book):
         l = self.get_list(list_name, db)
         thing = Thing()
         data = self.parse_request(request)
-        print data
         if not l[0]:
             thing_name = list_name + ".0"
             thing_path = "/" + db + "/thing/" + thing_name
@@ -124,8 +123,14 @@ class List(Book):
             self.Book.set(list_name, l + [thing_path])
         if request.args.get("tags"):
            ll = Linked_List()
+           print request.args.get("tags")
            for tag in request.args.get("tags").split(","):
               ll.put( tag, db, link=thing_path)
+              tags = ll.get("tags", db)
+              print type(tags), "< is it a list?"
+              if tag not in tags:
+                 ll.put( "tags", db, link=tag)
+
         return self.Book.get_contents(list_name)
 
     def post(self, *args, **kwargs):
